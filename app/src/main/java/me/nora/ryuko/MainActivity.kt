@@ -5,37 +5,45 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import me.nora.ryuko.ui.theme.RyukoTheme
@@ -53,23 +61,76 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun RyukoApp(modifier: Modifier = Modifier) {
-    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(false) }
 
     Surface(modifier) {
         if (shouldShowOnboarding) {
             OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
         } else {
-            Greetings()
+            TopBar()
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBar() {
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            LargeTopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                ),
+                title = {
+                    Text(
+                        "Welcome",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { /* do something */ }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { /* do something */ }) {
+                        Icon(
+                            imageVector = Icons.Filled.Menu,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                },
+                scrollBehavior = scrollBehavior
+            )
+        },
+    ) { innerPadding ->
+        ScrollContent(innerPadding)
+    }
+}
+
+@Composable
+fun ScrollContent(innerPadding: PaddingValues) {
+    Greetings(innerPadding = innerPadding)
 }
 
 @Composable
 private fun Greetings(
     modifier: Modifier = Modifier,
-    names: List<String> = List(1000) { "$it" }
+    names: List<String> = List(20) { "$it" },
+    innerPadding: PaddingValues
 ) {
-    LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+        modifier = modifier.padding(innerPadding)) {
         items(items = names) { name ->
             Greeting(name = name)
         }
@@ -82,7 +143,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primary
         ),
-        modifier = modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+        modifier = modifier
     ) {
         CardContent(name)
     }
@@ -90,7 +151,6 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun CardContent(name: String, modifier: Modifier = Modifier) {
-    var expanded by rememberSaveable { mutableStateOf(false) }
     /*val extraPadding by animateDpAsState(
         if (expanded) 48.dp else 0.dp,
         label = "",
@@ -99,6 +159,7 @@ fun CardContent(name: String, modifier: Modifier = Modifier) {
             stiffness = Spring.StiffnessMedium
         )
     )*/
+    var expanded by rememberSaveable { mutableStateOf(false) }
 
     Row(
         modifier = modifier

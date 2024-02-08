@@ -20,20 +20,20 @@ private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
     tertiary = Pink80,
-    /*surface = Blue,
-    onSurface = Navy,
-    primary = Navy,
-    onPrimary = Chartreuse*/
+//    surface = Blue,
+//    onSurface = Navy,
+//    primary = Navy,
+//    onPrimary = Chartreuse
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = Purple40,
     secondary = PurpleGrey40,
     tertiary = Pink40,
-    /*surface = Blue,
-    onSurface = Color.White,
-    primary = LightBlue,
-    onPrimary = Navy*/
+//    surface = Blue,
+//    onSurface = Color.White,
+//    primary = LightBlue,
+//    onPrimary = Navy
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -53,15 +53,20 @@ fun RyukoTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
+    /*val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }*/
 
+    val colorScheme = when {
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
+
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
